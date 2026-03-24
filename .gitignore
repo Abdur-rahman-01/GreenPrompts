@@ -1,0 +1,27 @@
+# Secrets — never commit
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Node / build artifacts
+node_modules/
+dist/
+build/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Feedback data (may contain user prompts)
+backend/feedback.jsonl
+
+# Temp/Test files
+backend/test_out.txt
+
+.vercel

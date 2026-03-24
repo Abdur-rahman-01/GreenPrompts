@@ -1,0 +1,175 @@
+/* GreenPrompt Content Script Styles */
+
+/* ── Optimize button ──────────────────────────────────────────────────────── */
+#prompt-optimizer-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white; border: none; border-radius: 12px;
+  padding: 11px 18px; font-size: 14px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 7px;
+  box-shadow: 0 4px 12px rgba(16,185,129,.35);
+  transition: all .25s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+#prompt-optimizer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16,185,129,.45);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+#prompt-optimizer-btn svg { flex-shrink: 0; }
+
+/* ── Optimizer panel ─────────────────────────────────────────────────────── */
+#prompt-optimizer-panel {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: white; border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.28);
+  width: 90%; max-width: 680px; max-height: 85vh;
+  overflow-y: auto; z-index: 1000000; display: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+#prompt-optimizer-panel * { box-sizing: border-box; }
+
+.optimizer-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 22px; border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 16px 16px 0 0;
+}
+.optimizer-header h3 { margin: 0; font-size: 18px; font-weight: 700; color: #065f46; }
+
+.close-btn {
+  background: none; border: none; font-size: 26px; color: #6b7280;
+  cursor: pointer; padding: 0; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: all .2s;
+}
+.close-btn:hover { background: rgba(0,0,0,.06); color: #374151; }
+
+.optimizer-content { padding: 20px 22px; }
+
+.optimizer-section { margin-bottom: 20px; }
+.optimizer-section h4 {
+  margin: 0 0 10px; font-size: 12px; font-weight: 600;
+  color: #374151; text-transform: uppercase; letter-spacing: .5px;
+}
+
+.text-display {
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  border-radius: 8px; padding: 14px; font-size: 14px;
+  line-height: 1.6; color: #1f2937;
+  white-space: pre-wrap; word-wrap: break-word;
+  max-height: 140px; overflow-y: auto;
+}
+.optimizer-section.optimized .text-display {
+  background: #f0fdf4; border-color: #10b981;
+}
+
+.stats {
+  margin-top: 6px; font-size: 11px; color: #6b7280; font-weight: 500;
+}
+
+/* Savings grid */
+.optimizer-section.savings {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-radius: 12px; padding: 18px;
+}
+.savings-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 14px;
+}
+.saving-item { display: flex; flex-direction: column; gap: 3px; }
+.saving-item .label { font-size: 11px; color: #065f46; font-weight: 500; }
+.saving-item .value { font-size: 22px; font-weight: 700; color: #059669; }
+
+.reduction-percentage {
+  text-align: center; font-size: 16px; color: #047857;
+  padding-top: 14px; border-top: 1px solid #a7f3d0;
+}
+.reduction-percentage strong { font-size: 24px; color: #065f46; }
+
+/* Model info */
+.model-info {
+  background: #f8fafc; border-radius: 8px;
+  padding: 9px 12px; margin-top: 10px;
+  border-left: 3px solid #10b981;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.model-info small { font-size: 11px; color: #6b7280; line-height: 1.5; }
+
+/* Suggestions */
+.suggestions ul { margin: 0; padding-left: 18px; }
+.suggestions li {
+  margin-bottom: 6px; color: #4b5563;
+  line-height: 1.5; font-size: 13px;
+}
+
+/* Action buttons */
+.optimizer-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-primary, .btn-secondary {
+  flex: 1; padding: 11px 20px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all .2s; border: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16,185,129,.3);
+}
+.btn-secondary {
+  background: white; color: #374151; border: 1px solid #d1d5db;
+}
+.btn-secondary:hover { background: #f9fafb; border-color: #9ca3af; }
+
+/* Copy button — compact, sits between Keep and Use */
+.btn-copy {
+  flex: 0 0 auto; padding: 11px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .2s;
+  background: #f0fdf4; color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.btn-copy:hover {
+  background: #dcfce7; border-color: #10b981;
+  transform: translateY(-1px);
+}
+
+/* Notification toast */
+.optimizer-notification {
+  position: fixed; bottom: 80px; right: 20px;
+  background: #065f46; color: white;
+  padding: 12px 18px; border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  z-index: 1000001; opacity: 0; transform: translateY(8px);
+  transition: all .3s ease; font-size: 13px; font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.optimizer-notification.show { opacity: 1; transform: translateY(0); }
+
+/* Scrollbars */
+#prompt-optimizer-panel::-webkit-scrollbar,
+.text-display::-webkit-scrollbar { width: 6px; }
+#prompt-optimizer-panel::-webkit-scrollbar-thumb,
+.text-display::-webkit-scrollbar-thumb {
+  background: #10b981; border-radius: 3px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #prompt-optimizer-panel { width: 95%; max-height: 90vh; }
+  .savings-grid { grid-template-columns: 1fr; }
+  #prompt-optimizer-btn { padding: 9px 14px; font-size: 13px; }
+}
+
+/* ── Sustainability grade badge ─────────────────────────────────────────── */
+.grade-badge {
+  display: inline-block; color: white; font-size: 13px; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 6px;
+}
+.reduction-num {
+  display: block; font-size: 13px; color: #047857; font-weight: 500;
+  margin-top: 4px;
+}

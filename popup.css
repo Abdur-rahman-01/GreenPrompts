@@ -1,0 +1,132 @@
+/* GreenPrompt Popup Styles */
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 380px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  color: #1f2937;
+}
+.popup-container { padding: 0; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white; padding: 18px 20px; text-align: center;
+}
+.header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; }
+.tagline    { margin: 0; font-size: 12px; opacity: 0.9; }
+
+/* Totals grid */
+.stats-container { padding: 16px 16px 0; }
+.stats-container h2,
+.recent-section h2 {
+  margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #065f46;
+}
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-card {
+  background: white; border-radius: 10px; padding: 14px;
+  text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  transition: transform .15s;
+}
+.stat-card:hover { transform: translateY(-2px); }
+.stat-icon  { font-size: 22px; margin-bottom: 5px; }
+.stat-value { font-size: 18px; font-weight: 700; color: #059669; margin-bottom: 2px; }
+.stat-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+
+/* Recent history */
+.recent-section { padding: 14px 16px 0; }
+.empty-state {
+  text-align: center; color: #9ca3af; font-size: 12px;
+  padding: 16px 0; line-height: 1.6;
+}
+
+.history-item {
+  background: white; border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.history-header {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+}
+.history-index {
+  font-size: 11px; font-weight: 700; color: #059669;
+  background: #d1fae5; padding: 2px 6px; border-radius: 8px;
+}
+.history-time {
+  font-size: 11px; color: #9ca3af; flex: 1;
+}
+.history-tier {
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 8px; text-transform: uppercase;
+}
+.tier-large  { background: #fee2e2; color: #991b1b; }
+.tier-medium { background: #dbeafe; color: #1d4ed8; }
+.tier-small  { background: #d1fae5; color: #065f46; }
+
+/* Progress bar */
+.history-bar-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
+}
+.history-bar-bg {
+  flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+}
+.history-bar-fill {
+  height: 100%; background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 3px; transition: width .4s ease;
+}
+.history-pct { font-size: 11px; font-weight: 600; color: #059669; white-space: nowrap; }
+
+.history-metrics {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.history-metrics span {
+  font-size: 11px; color: #6b7280;
+  background: #f9fafb; padding: 2px 6px; border-radius: 6px;
+}
+
+/* Platforms */
+.supported-platforms { padding: 12px 16px 0; }
+.supported-platforms h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: #065f46; }
+.platforms { display: flex; flex-wrap: wrap; gap: 6px; }
+.platform-badge {
+  background: white; border: 1px solid #10b981; color: #065f46;
+  padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
+}
+
+/* Actions */
+.actions { padding: 12px 16px 0; }
+.btn-primary {
+  width: 100%; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+  color: white; cursor: pointer; transition: all .2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn-reset {
+  width: 100%; padding: 9px; background: white;
+  border: 1px solid #d1d5db; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: #374151; cursor: pointer;
+  transition: all .2s;
+}
+.btn-reset:hover { background: #fef2f2; border-color: #ef4444; color: #dc2626; }
+
+/* Footer */
+.footer {
+  background: rgba(255,255,255,.5); padding: 12px 16px;
+  text-align: center; border-top: 1px solid rgba(16,185,129,.2); margin-top: 14px;
+}
+.footer p { margin: 0; font-size: 10px; color: #065f46; font-style: italic; }
+
+/* Intent icon + grade in history cards */
+.history-intent { font-size: 14px; }
+.history-grade  {
+  font-size: 11px; font-weight: 600; color: #059669;
+  margin-bottom: 6px;
+}

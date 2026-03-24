@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "GreenPrompt - AI Prompt Optimizer",
+  "version": "4.0.0",
+  "description": "Pre-flight energy popup that shows CO₂, water and cost before you send to ChatGPT, Claude or Gemini.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://bard.google.com/*",
+    "http://localhost/*",
+    "http://localhost:8000/*",
+    "https://*.vercel.app/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "https://claude.ai/*",
+        "https://gemini.google.com/*",
+        "https://bard.google.com/*"
+      ],
+      "js":  ["optimizer.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": { "service_worker": "background.js" },
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

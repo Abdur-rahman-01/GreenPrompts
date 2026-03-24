@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Prompt Optimizer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+
+    <div class="header">
+      <h1>🌱 GreenPrompt</h1>
+      <p class="tagline">Save energy, one prompt at a time</p>
+    </div>
+
+    <!-- Cumulative impact stats -->
+    <div class="stats-container">
+      <h2>Your Total Impact</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-value" id="total-co2">0 g</div>
+          <div class="stat-label">CO₂ Wastage Avoided</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💧</div>
+          <div class="stat-value" id="total-water">0 ml</div>
+          <div class="stat-label">Water Wastage Avoided</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-value" id="total-energy">0 Wh</div>
+          <div class="stat-label">Energy Wastage Avoided</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✨</div>
+          <div class="stat-value" id="total-optimizations">0</div>
+          <div class="stat-label">Accepted</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent accepted optimizations dashboard -->
+    <div class="recent-section">
+      <h2>Recent Accepted Optimizations</h2>
+      <div id="recent-list">
+        <p class="empty-state">No optimizations accepted yet.<br>
+          Type a prompt, click Optimize, then accept it!</p>
+      </div>
+    </div>
+
+    <!-- Platforms -->
+    <div class="supported-platforms">
+      <h3>Supported Platforms</h3>
+      <div class="platforms">
+        <span class="platform-badge">ChatGPT</span>
+        <span class="platform-badge">Claude</span>
+        <span class="platform-badge">Gemini</span>
+        <span class="platform-badge">Copilot</span>
+        <span class="platform-badge">Bing</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="http://localhost:3000/playground/index.html" target="_blank" style="text-decoration:none; display:block; margin-bottom:10px;">
+        <button class="btn-primary" style="width:100%">Open Playground 🌐</button>
+      </a>
+      <button id="reset-stats" class="btn-reset">Reset Statistics</button>
+    </div>
+
+    <div class="footer">
+      <p style="line-height:1.5">
+        Every prompt you optimize saves a tiny amount of energy and water.
+        Multiplied across millions of AI users, these tiny savings become meaningful.
+        <strong>GreenPrompt makes the invisible visible.</strong>
+      </p>
+      <p style="font-size:10px;opacity:0.65;margin-top:4px">
+        Methodology: Energy × PUE × carbon intensity × WUE pipeline
+        · Based on Google's Aug 2025 AI inference methodology
+        (<a href="https://arxiv.org/abs/2508.15734" style="color:inherit" target="_blank">arxiv 2508.15734</a>)
+      </p>
+    </div>
+
+  </div>
+
+  <script src="optimizer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
