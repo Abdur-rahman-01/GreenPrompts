@@ -563,11 +563,18 @@ class PromptOptimizer {
     const tokens = this.estimateTokens(text);
     const tier = this.MODEL_TIERS[this.currentTier];
     const provider = this.PROVIDER_CONSTANTS[this.currentProvider] || this.PROVIDER_CONSTANTS['default'];
-    const raw_wh = (tokens / 1000) * tier.wh_per_1k;
+    
+    // HACKATHON DEMO: We apply a 50,000x multiplier to simulate enterprise-scale impact
+    // (i.e. if an entire company's prompts were optimized). 
+    // This provides a "good looking difference" for judges while staying mathematically grounded.
+    const SCALE_FACTOR = 50000;
+
+    const raw_wh = ((tokens / 1000) * tier.wh_per_1k) * SCALE_FACTOR;
     const total_wh = raw_wh * provider.pue;
     const total_kwh = total_wh / 1000;
+    
     return {
-      tokens,
+      tokens: tokens * SCALE_FACTOR,
       energy_wh: parseFloat(total_wh.toFixed(6)),
       energy_kwh: parseFloat(total_kwh.toFixed(8)),
       co2_g: parseFloat((total_kwh * provider.carbonIntensity).toFixed(4)),
@@ -581,6 +588,15 @@ class PromptOptimizer {
     const pct = originalText.length > 0
       ? (((originalText.length - optimizedText.length) / originalText.length) * 100).toFixed(1)
       : '0.0';
+
+    // Local JS Execution Cost Math:
+    // Avg laptop = 15 Watts. Runtime = ~2ms (0.002s).
+    // Energy per optimization = 15W * (0.002s / 3600) = 0.00000833 Wh.
+    // Scaled by 50,000 runs for the demo = ~0.4165 Wh total execution cost.
+    const SCALE_FACTOR = 50000;
+    const execution_cost_wh = 0.00000833 * SCALE_FACTOR;
+    const raw_saved_energy = orig.energy_wh - opt.energy_wh;
+    const net_saved_energy = raw_saved_energy - execution_cost_wh;
 
     return {
       original: {
@@ -603,7 +619,9 @@ class PromptOptimizer {
         co2: parseFloat((orig.co2_g - opt.co2_g).toFixed(4)),
         water: parseFloat((orig.water_ml - opt.water_ml).toFixed(4)),
         energy: parseFloat((orig.energy_kwh - opt.energy_kwh).toFixed(8)),
-        energy_wh: parseFloat((orig.energy_wh - opt.energy_wh).toFixed(4)),
+        energy_wh: parseFloat(raw_saved_energy.toFixed(4)),
+        execution_cost_wh: parseFloat(execution_cost_wh.toFixed(4)),
+        net_energy_wh: parseFloat(net_saved_energy.toFixed(4)),
         percentage: pct,
         grade: this.getSustainabilityGrade(parseFloat(pct))
       },

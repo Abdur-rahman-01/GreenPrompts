@@ -29,7 +29,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GROQ_MODEL_IDS = {
     "SLM":  "llama-3.1-8b-instant",
-    "MID":  "mixtral-8x7b-32768",        
+    "MID":  "qwen/qwen3-32b",        
     "FULL": "llama-3.3-70b-versatile",              
 }
 
@@ -69,10 +69,11 @@ async def _call_gemini(prompt: str, start: float) -> dict:
     if not GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY missing")
 
-    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
+
     
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:

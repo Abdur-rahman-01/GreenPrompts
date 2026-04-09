@@ -21,6 +21,16 @@ function renderTotals(s) {
   document.getElementById('total-water').textContent         = formatWater(s.water);
   document.getElementById('total-energy').textContent        = formatEnergy(s.energy);
   document.getElementById('total-optimizations').textContent = s.optimizations;
+
+  // P2-7: Toggle breakdown visibility if data exists
+  if (s.originalEnergy || s.optimizedEnergy) {
+    const detail = document.getElementById('total-energy-detail');
+    if (detail) {
+      detail.style.display = 'block';
+      document.getElementById('total-original').textContent = formatEnergy(s.originalEnergy);
+      document.getElementById('total-optimized').textContent = formatEnergy(s.optimizedEnergy);
+    }
+  }
 }
 
 // ── Recent history dashboard ──────────────────────────────────────────────────
@@ -72,7 +82,10 @@ function renderHistory(history) {
           <span>🔤 ${item.originalChars}→${item.optimizedChars} chars</span>
           <span>🌍 −${formatCO2(item.co2Saved)}</span>
           <span>💧 −${formatWater(item.waterSaved)}</span>
-          <span>⚡ −${item.energySaved_wh} Wh</span>
+          ${item.originalEnergyWh 
+            ? `<span class="energy-compare" title="Green ROI Pipeline:&#10;+ ${item.grossEnergySaved || item.energySaved_wh} Wh (LLM Energy Avoided)&#10;- ${item.executionCostWh || 0} Wh (JS Execution Cost)&#10;= ${item.energySaved_wh} Wh (Net ROI)">⚡ ${formatEnergy(item.originalEnergyWh/1000)} → ${formatEnergy(item.optimizedEnergyWh/1000)}</span>`
+            : `<span>⚡ −${item.energySaved_wh} Wh</span>`
+          }
           ${item.sensitivityFlag ? '<span style="color:#ef4444">⚠️ Sensitive</span>' : ''}
         </div>
         <div class="history-copy-hint" style="font-size:10px;opacity:0.55;margin-top:4px;text-align:right">📋 tap to copy</div>

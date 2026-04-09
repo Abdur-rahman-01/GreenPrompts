@@ -32,6 +32,9 @@
           <div class="stat-icon">⚡</div>
           <div class="stat-value" id="total-energy">0 Wh</div>
           <div class="stat-label">Energy Wastage Avoided</div>
+          <div id="total-energy-detail" style="font-size: 9px; color: #6b7280; font-weight:500; margin-top: 4px; display: none;">
+            <span id="total-original">0</span> <span style="opacity:0.5">baseline</span> → <span id="total-optimized">0</span> <span style="opacity:0.5">actual</span>
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">✨</div>
@@ -71,8 +74,8 @@
 
     <div class="footer">
       <p style="line-height:1.5">
-        Every prompt you optimize saves a tiny amount of energy and water.
-        Multiplied across millions of AI users, these tiny savings become meaningful.
+        To demonstrate business value, demo savings are projected over <strong>50,000 invocations</strong>.
+        Multiplied across enterprise pipelines, these optimizations become highly meaningful.
         <strong>GreenPrompt makes the invisible visible.</strong>
       </p>
       <p style="font-size:10px;opacity:0.65;margin-top:4px">

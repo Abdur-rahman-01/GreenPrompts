@@ -318,24 +318,36 @@
   // ── Panel update ──────────────────────────────────────────────────────────
 
   function updatePanel(original, optimized, savings, suggestions) {
-    document.getElementById('original-text').textContent  = original;
-    document.getElementById('optimized-text').textContent = optimized;
+    if (!document.body.contains(optimizerPanel)) {
+      document.body.appendChild(optimizerPanel);
+    }
 
-    document.getElementById('original-stats').innerHTML =
+    optimizerPanel.querySelector('#original-text').textContent  = original;
+    optimizerPanel.querySelector('#optimized-text').textContent = optimized;
+
+    optimizerPanel.querySelector('#original-stats').innerHTML =
       `${savings.original.chars} chars · ${savings.original.tokens} tokens · ${formatEnergy(savings.original.energy_wh)}`;
 
-    document.getElementById('optimized-stats').innerHTML =
+    optimizerPanel.querySelector('#optimized-stats').innerHTML =
       `${savings.optimized.chars} chars · ${savings.optimized.tokens} tokens · ${formatEnergy(savings.optimized.energy_wh)}`;
 
-    document.getElementById('co2-saved').textContent    = formatCO2(savings.saved.co2);
-    document.getElementById('water-saved').textContent  = formatWater(savings.saved.water);
-    document.getElementById('energy-saved').textContent = formatEnergy(savings.saved.energy_wh);
-    document.getElementById('tokens-saved').textContent = savings.saved.tokens;
+    optimizerPanel.querySelector('#co2-saved').textContent    = formatCO2(savings.saved.co2);
+    optimizerPanel.querySelector('#water-saved').textContent  = formatWater(savings.saved.water);
+    optimizerPanel.querySelector('#energy-saved').innerHTML = `
+      <div style="line-height: 1.2;">
+        <span style="font-weight: bold; color: #059669;">${formatEnergy(savings.saved.net_energy_wh)} Net ROI</span>
+        <div style="font-size: 9px; color: #6b7280; font-weight: normal; margin-top: 3px;">
+          Saved (LLM): +${formatEnergy(savings.saved.energy_wh)}<br>
+          Spend (JS): −${formatEnergy(savings.saved.execution_cost_wh)}
+        </div>
+      </div>
+    `;
+    optimizerPanel.querySelector('#tokens-saved').textContent = savings.saved.tokens;
 
     // Sustainability grade
     const grade = savings.saved.grade || { label: '✅ Already Optimized', color: '#10b981' };
     const pct   = parseFloat(savings.saved.percentage);
-    document.getElementById('reduction-pct').innerHTML = `
+    optimizerPanel.querySelector('#reduction-pct').innerHTML = `
       <span class="grade-badge" style="background:${grade.color}">${grade.label}</span>
       ${pct > 0 ? `<span class="reduction-num">${pct}% smaller prompt</span>` : ''}
     `;
@@ -348,14 +360,15 @@
       ? `<small style="color:#ef4444;font-weight:600;">${savings.meta.sensitivityFlag}</small>`
       : '';
     // P1-1: Add providerLabel to model-info block
-    document.getElementById('model-info').innerHTML = `
+    optimizerPanel.querySelector('#model-info').innerHTML = `
       <small>${intentEmoji[savings.meta.intent] || '💬'} Intent: <strong>${savings.meta.intent}</strong> · 🤖 ${savings.meta.tierLabel}</small>
       <small>🏢 Provider: ${savings.meta.providerLabel}</small>
       <small>📍 Carbon: ${savings.meta.carbonIntensity} gCO₂e/kWh · PUE: ${savings.meta.pue} · WUE: ${savings.meta.wue} L/kWh</small>
+      <small style="color:#059669; font-weight: 600;">🚀 Enterprise Scale Demo: Impact projected over 50,000 invocations</small>
       ${sensitivityHtml}
     `;
 
-    document.getElementById('suggestions-list').innerHTML =
+    optimizerPanel.querySelector('#suggestions-list').innerHTML =
       suggestions.map(s => `<li>${s}</li>`).join('');
 
     optimizerPanel.dataset.optimizedText = optimized;
@@ -367,12 +380,15 @@
     chrome.storage.local.get(['totalSavings', 'recentOptimizations'], (result) => {
       // ── Cumulative totals ──
       const total = result.totalSavings || {
-        co2: 0, water: 0, energy: 0, chars: 0, optimizations: 0
+        co2: 0, water: 0, energy: 0, chars: 0, optimizations: 0,
+        originalEnergy: 0, optimizedEnergy: 0
       };
 
       total.co2           += savings.saved.co2;    // grams
       total.water         += savings.saved.water;  // ml
       total.energy        += savings.saved.energy; // kWh
+      total.originalEnergy += parseFloat(savings.original.energy_wh) / 1000;
+      total.optimizedEnergy += parseFloat(savings.optimized.energy_wh) / 1000;
       total.chars         += savings.saved.chars;
       total.optimizations += 1;
 
@@ -385,7 +401,11 @@
         tokensSaved:     savings.saved.tokens,
         co2Saved:        savings.saved.co2,
         waterSaved:      savings.saved.water,
-        energySaved_wh:  savings.saved.energy_wh,
+        energySaved_wh:  savings.saved.net_energy_wh,
+        grossEnergySaved: savings.saved.energy_wh,
+        executionCostWh:  savings.saved.execution_cost_wh,
+        originalEnergyWh: savings.original.energy_wh,
+        optimizedEnergyWh: savings.optimized.energy_wh,
         percentage:      savings.saved.percentage,
         tier:            savings.meta.tier,
         intent:          savings.meta.intent,
