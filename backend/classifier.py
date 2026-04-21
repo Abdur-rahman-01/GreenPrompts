@@ -207,7 +207,7 @@ def generate_rule_reason(tier: str, features: dict) -> str:
     model_names = {
         "SLM":  "Llama 3.1 8B",
         "MID":  "Mixtral 8x7B",
-        "FULL": "Qwen 3 32B (Heavy)",
+        "FULL": "Llama 3.3 70B",
     }
     parts = []
     if features["token_count"] > 150:
@@ -315,8 +315,8 @@ async def gemini_flash_classify(prompt: str) -> dict:
 # ─── PUBLIC ENTRY POINT ──────────────────────────────────────────────────────
 MODEL_MAP = {
     "SLM":  "llama-3.1-8b-instant",
-    "MID":  "mistral-saba-24b",
-    "FULL": "qwen/qwen3-32b",
+    "MID":  "mixtral-8x7b-32768",
+    "FULL": "llama-3.3-70b-versatile",
 }
 
 SUGGESTED_BACKUPS = {

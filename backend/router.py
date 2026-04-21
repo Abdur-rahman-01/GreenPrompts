@@ -29,7 +29,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GROQ_MODEL_IDS = {
     "SLM":  "llama-3.1-8b-instant",
-    "MID":  "qwen/qwen3-32b",        
+    "MID":  "mixtral-8x7b-32768",        
     "FULL": "llama-3.3-70b-versatile",              
 }
 

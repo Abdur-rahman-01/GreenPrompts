@@ -82,7 +82,7 @@
       : RENDER_URL;
 
 
-    const TIER_MODEL = { SLM: 'Llama 3.1 8B', MID: 'Mistral Saba 24B', FULL: 'Qwen 3 32B' };
+    const TIER_MODEL = { SLM: 'Llama 3.1 8B', MID: 'Mixtral 8x7B', FULL: 'Llama 3.3 70B' };
     const TIER_CLS = { SLM: 'slm', MID: 'mid', FULL: 'full' };
 
     /* ─── STATE ─────────────────────────────────────────── */
@@ -172,12 +172,22 @@
 
     /* ─── RESPONSE ──────────────────────────────────────── */
     function renderResponse(rd) {
+      const isError = rd.error || !rd.response;
       const w = document.createElement('div'); w.className = 'message bot';
-      w.innerHTML = `<div class="bot-avatar">🤖</div>
-        <div class="glass-card" style="width: 100%;">
-          <div class="card-top"><span class="status-badge" style="background:rgba(255,255,255,0.05)">${esc(rd.model_used)}</span> <span>${rd.response_time_ms}ms</span></div>
-          <div style="margin-top: 0.75rem; font-size: 0.95rem; white-space: pre-wrap;">${esc(rd.response)}</div>
-        </div>`;
+      
+      if (isError) {
+        w.innerHTML = `<div class="bot-avatar">⚠️</div>
+          <div class="glass-card" style="border-color:#ef4444; width:100%;">
+            <div class="card-top">ERROR DEPLOYING MODEL</div>
+            <div style="margin-top:0.75rem; font-size:0.95rem;">${esc(rd.message || rd.error || "Unknown API error. Check backend logs.")}</div>
+          </div>`;
+      } else {
+        w.innerHTML = `<div class="bot-avatar">🤖</div>
+          <div class="glass-card" style="width: 100%;">
+            <div class="card-top"><span class="status-badge" style="background:rgba(255,255,255,0.05)">${esc(rd.model_used)}</span> <span>${rd.response_time_ms}ms</span></div>
+            <div style="margin-top: 0.75rem; font-size: 0.95rem; white-space: pre-wrap;">${esc(rd.response)}</div>
+          </div>`;
+      }
       push(w);
     }
 
@@ -223,10 +233,20 @@
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: S.prompt, tier: S.analysis.tier, messages: S.messages }),
         });
-        const data = await res.json();
+        
+        let data;
+        try {
+           data = await res.json();
+        } catch(e) {
+           data = { error: "Parse Error", message: "Failed to parse API response" };
+        }
+
         rmTyping();
         renderResponse(data);
-      } catch (err) { rmTyping(); }
+      } catch (err) { 
+        rmTyping();
+        renderResponse({ error: "Network Error", message: "Could not reach the routing backend." });
+      }
       finally { S.busy = false; }
     }
 
