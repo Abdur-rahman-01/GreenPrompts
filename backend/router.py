@@ -19,13 +19,13 @@ _client = None
 def get_groq_client():
     global _client
     if _client is None:
-        key = os.getenv("GROQ_API_KEY", "").strip().strip('"').strip("'")
+        key = os.getenv("GROQ_API_KEY")
         if not key:
             raise ValueError("GROQ_API_KEY is missing. Add it to backend/.env")
         _client = Groq(api_key=key)
     return _client
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip().strip('"').strip("'")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GROQ_MODEL_IDS = {
     "SLM":  "llama-3.1-8b-instant",
