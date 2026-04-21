@@ -75,9 +75,12 @@
 
   <script>
     /* ─── CONSTANTS ─────────────────────────────────────── */
-    const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const RENDER_URL = 'https://greenprompts-bvdh.onrender.com';
+
+    const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:8000'
-      : window.location.origin + '/api';
+      : RENDER_URL;
+
 
     const TIER_MODEL = { SLM: 'Llama 3.1 8B', MID: 'Mistral Saba 24B', FULL: 'Qwen 3 32B' };
     const TIER_CLS = { SLM: 'slm', MID: 'mid', FULL: 'full' };
