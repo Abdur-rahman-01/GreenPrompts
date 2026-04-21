@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip().strip('"').strip("'")
 
 def _clean(s: str) -> str:
     """Removes unpaired surrogates from string to prevent UTF-8 encoding errors."""
