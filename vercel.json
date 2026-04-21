@@ -1,12 +1,9 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/playground/index.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "destination": "/playground/index.html",
+      "permanent": false
     }
   ]
 }
