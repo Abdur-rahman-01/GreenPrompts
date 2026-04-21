@@ -25,7 +25,8 @@ SIMPLE_VERBS = {
     "what", "who", "when", "where", "define", "list", "translate",
     "fix", "correct", "convert", "name", "tell", "show", "find",
     "give", "get", "check", "count", "is", "are", "was", "were",
-    "hi", "hello", "hey", "thanks", "thank",
+    "hi", "hello", "hey", "thanks", "thank", "greet", "how", "can",
+    "do", "you", "ready", "start", "begin",
 }
 
 MID_VERBS = {
@@ -165,6 +166,10 @@ def extract_features(prompt: str) -> dict:
 
 # ─── RULE-BASED DECISION ─────────────────────────────────────────────────────
 def rule_based_classify(features: dict) -> str:
+    # ── Guard: forced SLM for very short prompts (less than 25 tokens) ─────
+    if features["token_count"] <= 25 and not features["has_math"] and not features["has_code"]:
+        return "SLM"
+
     score = 0
 
     tc = features["token_count"]
@@ -205,8 +210,8 @@ def rule_based_classify(features: dict) -> str:
 # ─── REASON BUILDER ──────────────────────────────────────────────────────────
 def generate_rule_reason(tier: str, features: dict) -> str:
     model_names = {
-        "SLM":  "Llama 3.1 8B",
-        "MID":  "Mixtral 8x7B",
+        "SLM":  "Llama 3.2 3B",
+        "MID":  "Llama 3.1 8B",
         "FULL": "Llama 3.3 70B",
     }
     parts = []
@@ -242,7 +247,7 @@ def infer_task_type(features: dict) -> str:
 async def gemini_flash_classify(prompt: str) -> dict:
     default = {
         "tier":              "MID",
-        "recommended_model": "Mixtral 8x7B",
+        "recommended_model": "Llama 3.1 8B",
         "reason":            "Classified as moderate complexity (fallback).",
         "confidence":        0.5,
         "task_type":         "factual",
@@ -314,15 +319,15 @@ async def gemini_flash_classify(prompt: str) -> dict:
 
 # ─── PUBLIC ENTRY POINT ──────────────────────────────────────────────────────
 MODEL_MAP = {
-    "SLM":  "llama-3.1-8b-instant",
-    "MID":  "mixtral-8x7b-32768",
-    "FULL": "llama-3.3-70b-versatile",
+    "SLM":  "Llama 3.2 3B",
+    "MID":  "Llama 3.1 8B",
+    "FULL": "Llama 3.3 70B",
 }
 
 SUGGESTED_BACKUPS = {
-    "SLM":  ["Mistral (Small)", "Qwen 2.5 (Small)"],
-    "MID":  ["Claude 3 Haiku", "GPT-4o mini"],
-    "FULL": ["GPT-4o", "Claude 3.5 Sonnet", "Gemini 1.5 Pro"],
+    "SLM":  ["Qwen 2.5 3B", "Gemma 2 2B", "Llama 3.2 1B"],
+    "MID":  ["Mistral Nemo", "Qwen 2.5 7B", "Gemma 2 9B"],
+    "FULL": ["GPT-4o-mini", "Claude 3 Haiku", "Gemini 1.5 Flash"],
 }
 
 

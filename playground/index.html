@@ -5,73 +5,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GreenPrompt Playground — Sustainable AI</title>
-  <meta name="description"
-    content="Route your prompts to the most energy-efficient AI model. Real-time CO₂, energy and cost comparison." />
+  <meta name="description" content="Route your prompts to the most energy-efficient AI model. Real-time CO₂, energy and cost comparison." />
   <link rel="stylesheet" href="style.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-  <div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-  </div>
+  <!-- BACKGROUND LAYER -->
+  <div class="bg-fixed"></div>
+  <div class="bg-overlay"></div>
 
   <div id="toast"></div>
 
-  <div id="app">
-    <!-- HEADER -->
-    <header id="header">
-      <div class="logo">
-        <span class="logo-leaf">🌿</span>
-        <span class="logo-name">GreenPrompt</span>
-        <span class="logo-badge">Playground</span>
-      </div>
-      <div id="engineBadge" class="status-badge">
-        <span class="status-dot"></span>
-        <span id="badgeLabel">SYSTEM READY</span>
-        <span class="badge-tip" id="badgeTip">Waiting for a prompt analysis</span>
-      </div>
-    </header>
+  <nav>
+    <a href="#" class="nav-link">Sign in</a>
+  </nav>
 
-    <div id="main">
-      <!-- HERO / LANDING -->
-      <div id="heroCenter">
-        <div class="hero-eyebrow">Data-Driven Sustainable AI</div>
-        <h1 class="hero-title">Every prompt has a<br /><span>greener path.</span></h1>
-        <p class="hero-subtitle">Optimize your compute resources in real-time. Route complexity to the most
-          energy-efficient model tiers.</p>
+  <main id="app">
+    <!-- HERO SECTION -->
+    <section class="hero" id="heroCenter">
+      <h1 class="hero-title">Every prompt has a<br />cleaner path.</h1>
+      <p class="hero-subtitle">Fullstack. Production-ready. Your code.</p>
+    </section>
 
-        <div class="example-chips">
-          <span class="ex-chip" id="exChip1">Explain quantum entanglement</span>
-          <span class="ex-chip" id="exChip2">Write a fast sort in Python</span>
-          <span class="ex-chip" id="exChip3">Sustainable business strategy</span>
-        </div>
-      </div>
+    <!-- DASHBOARD CARD -->
+    <section class="dashboard-wrapper">
+      <div class="glass-dashboard">
+        <!-- CHAT AREA -->
+        <div id="chatArea"></div>
 
-      <!-- CHAT Area -->
-      <div id="chatArea">
-        <div class="chat-inner" id="chatInner"></div>
-      </div>
-    </div>
+        <!-- INPUT SECTION -->
+        <div class="input-section">
+          <div class="textarea-container">
+            <textarea id="promptInput" placeholder="A dashboard for tracking..." rows="1"></textarea>
+          </div>
+          <div class="input-actions">
+            <button class="action-btn">
+              <i data-lucide="package" size="18"></i>
+              <span>Full-stack</span>
+              <i data-lucide="chevron-down" size="14"></i>
+            </button>
+            <button class="action-btn">
+              <i data-lucide="box" size="18"></i>
+              <span>Build</span>
+              <i data-lucide="chevron-down" size="14"></i>
+            </button>
+            <button class="action-btn">
+              <i data-lucide="paperclip" size="18"></i>
+            </button>
 
-    <!-- INPUT -->
-    <div id="inputArea">
-      <div class="input-container">
-        <div class="input-glass">
-          <textarea id="promptInput" placeholder="Enter your prompt to analyze resource impact..." rows="1"></textarea>
-          <div class="input-foot">
-            <span id="tokenCount">0 TOKENS</span>
-            <span>Press Ctrl+Enter to Analyze</span>
+            <button id="sendBtn" class="send-button" title="Analyze Prompt">
+              <i data-lucide="arrow-up" size="20"></i>
+            </button>
           </div>
         </div>
-        <button id="sendBtn" title="Analyze Prompt">
-          <i data-lucide="zap"></i>
-        </button>
       </div>
+    </section>
+
+    <!-- BENTO FEATURES -->
+    <section class="bento-grid">
+      <div class="bento-card">
+        <h3 class="bento-title">Carbon-Aware Inference</h3>
+        <p class="bento-desc">Our proprietary engine dynamically shifts workloads to data centers powered by 100%
+          renewable energy, reducing your AI carbon footprint by up to 40% without latency penalties.</p>
+        <a href="#" class="bento-link">
+          Explore Research <i data-lucide="arrow-right" size="16"></i>
+        </a>
+      </div>
+      <div class="bento-card">
+        <h3 class="bento-title">Adaptive Routing</h3>
+        <p class="bento-desc">Intelligently route tasks to the most efficient model based on complexity and
+          cost-per-watt. Optimize performance while minimizing environmental impact on every call.</p>
+        <a href="#" class="bento-link">
+          Learn More <i data-lucide="arrow-right" size="16"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- FOOTER BAR -->
+    <div class="footer-bar">
+      <div class="badge-ph">
+        <span class="badge-number">3</span>
+        <span>PRODUCT HUNT <br /><b>#3 Product of the Day</b></span>
+      </div>
+      <button class="info-btn">
+        <i data-lucide="info" size="20"></i>
+      </button>
     </div>
-  </div>
+  </main>
 
   <script>
     /* ─── CONSTANTS ─────────────────────────────────────── */
@@ -81,8 +103,7 @@
       ? 'http://localhost:8000'
       : RENDER_URL;
 
-
-    const TIER_MODEL = { SLM: 'Llama 3.1 8B', MID: 'Mixtral 8x7B', FULL: 'Llama 3.3 70B' };
+    const TIER_MODEL = { SLM: 'Llama 3.2 3B', MID: 'Llama 3.1 8B', FULL: 'Llama 3.3 70B' };
     const TIER_CLS = { SLM: 'slm', MID: 'mid', FULL: 'full' };
 
     /* ─── STATE ─────────────────────────────────────────── */
@@ -93,34 +114,27 @@
 
     /* ─── INPUT HELPERS ─────────────────────────────────── */
     const ta = document.getElementById('promptInput');
-    const tokEl = document.getElementById('tokenCount');
     const btn = document.getElementById('sendBtn');
+    const chatArea = document.getElementById('chatArea');
 
     function resize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 180) + 'px'; }
-    function countTokens(text) { return Math.ceil(text.split(/\s+/).filter(Boolean).length / 0.75); }
-
-    function updateTok() {
-      const t = countTokens(ta.value);
-      tokEl.textContent = `${t} TOKEN${t !== 1 ? 'S' : ''}`;
-    }
-
-    ta.addEventListener('input', () => { resize(ta); updateTok(); });
+    
+    ta.addEventListener('input', () => { resize(ta); });
     ta.addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); go(); return; }
     });
     btn.addEventListener('click', go);
 
     /* ─── NAVIGATION ────────────────────────────────────── */
-    function enterChat() {
-      document.body.classList.add('chat-mode');
-    }
-
     function scrollBot() {
-      const a = document.getElementById('chatArea');
-      a.scrollTo({ top: a.scrollHeight, behavior: 'smooth' });
+      chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
     }
 
-    function push(el) { document.getElementById('chatInner').appendChild(el); scrollBot(); }
+    function push(el) { 
+      chatArea.appendChild(el); 
+      chatArea.style.display = 'flex';
+      scrollBot(); 
+    }
 
     /* ─── BUBBLES ───────────────────────────────────────── */
     function addUserMsg(txt) {
@@ -130,35 +144,34 @@
 
     function addTyping() {
       const w = document.createElement('div'); w.className = 'message bot'; w.id = 'typingEl';
-      w.innerHTML = `<div class="bot-avatar">🌿</div><div class="glass-card">Analyzing impact...</div>`;
+      w.innerHTML = `<div class="bot-avatar">🌿</div><div class="glass-card" style="background:none;border:none;padding:0.75rem;font-size:0.9rem;opacity:0.7;">Analyzing impact...</div>`;
       push(w);
     }
     function rmTyping() { const el = document.getElementById('typingEl'); if (el) el.remove(); }
 
     /* ─── ANALYSIS ──────────────────────────────────────── */
     function renderAnalysis(d) {
-      const { tier, reason, task_type, features, estimates } = d;
+      const { tier, reason, estimates } = d;
 
       const tierRows = ['SLM', 'MID', 'FULL'].map(t => {
         const e = estimates[t]; const best = t === tier;
-        const sc = `s-${e.green_score.toLowerCase()}`;
         return `<div class="tier-col ${best ? 'best' : ''}">
-          <div class="t-name font-code">${t}</div>
-          <div class="t-score ${sc}">${e.green_score}</div>
-          <div class="t-metric">Energy: ${e.energy_index.toLocaleString()}J</div>
-          <div class="t-metric">CO2: ${e.co2_g.toFixed(3)}g</div>
-          <div class="t-metric">Water: ${e.water_ml.toFixed(1)}ml</div>
+          <div class="font-code" style="font-size:0.75rem; opacity:0.6; margin-bottom:0.25rem;">${t}</div>
+          <div class="t-score">${e.green_score}</div>
+          <div class="t-metric">${e.energy_index.toLocaleString()}J</div>
+          <div class="t-metric">${e.co2_g.toFixed(3)}g CO2</div>
         </div>`;
       }).join('');
 
       const w = document.createElement('div'); w.className = 'message bot';
       w.innerHTML = `<div class="bot-avatar">🌿</div>
-        <div class="glass-card analysis-card">
-          <div class="card-top">RESOURCE IMPACT ASSESSMENT <span>Source: Rule Engine</span></div>
+        <div class="analysis-bubble">
           <div class="tier-grid">${tierRows}</div>
-          <div style="margin-top: 1rem;">
-             <p style="font-size: 0.9rem; margin-bottom: 1rem;"><b>Recommendation:</b> ${esc(reason)}</p>
-             <button class="btn-primary" id="runBtn" style="width:100%; justify-content:center;">Deploy to ${esc(TIER_MODEL[tier])}</button>
+          <div style="background:rgba(255,255,255,0.03); padding:1.25rem; border-radius:1rem; border:1px solid rgba(255,255,255,0.05);">
+             <p style="font-size: 0.95rem; margin-bottom: 1.25rem; line-height:1.5;">${esc(reason)}</p>
+             <button class="action-btn" id="runBtn" style="background:white; color:black; padding:0.75rem 1.5rem; border-radius:0.75rem; width:100%; justify-content:center; font-weight:600;">
+               Deploy to ${esc(TIER_MODEL[tier])}
+             </button>
           </div>
         </div>`;
       push(w);
@@ -177,15 +190,18 @@
       
       if (isError) {
         w.innerHTML = `<div class="bot-avatar">⚠️</div>
-          <div class="glass-card" style="border-color:#ef4444; width:100%;">
-            <div class="card-top">ERROR DEPLOYING MODEL</div>
-            <div style="margin-top:0.75rem; font-size:0.95rem;">${esc(rd.message || rd.error || "Unknown API error. Check backend logs.")}</div>
+          <div style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding:1rem; border-radius:1rem; width:100%;">
+            <div style="font-weight:700; font-size:0.75rem; color:#ef4444; margin-bottom:0.25rem;">ERROR DEPLOYING MODEL</div>
+            <div style="font-size:0.95rem; color:#ef4444;">${esc(rd.message || rd.error || "Unknown API error.")}</div>
           </div>`;
       } else {
         w.innerHTML = `<div class="bot-avatar">🤖</div>
-          <div class="glass-card" style="width: 100%;">
-            <div class="card-top"><span class="status-badge" style="background:rgba(255,255,255,0.05)">${esc(rd.model_used)}</span> <span>${rd.response_time_ms}ms</span></div>
-            <div style="margin-top: 0.75rem; font-size: 0.95rem; white-space: pre-wrap;">${esc(rd.response)}</div>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:1.25rem; border-radius:1rem; width: 100%;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; opacity:0.5; margin-bottom:0.75rem;">
+              <span>${esc(rd.model_used)}</span>
+              <span>${rd.response_time_ms}ms</span>
+            </div>
+            <div style="font-size: 1rem; line-height:1.6; white-space: pre-wrap;">${esc(rd.response)}</div>
           </div>`;
       }
       push(w);
@@ -196,13 +212,15 @@
       const p = ta.value.trim();
       if (!p || S.busy) return;
       S.busy = true; S.prompt = p;
-      btn.disabled = true; btn.innerHTML = '<i class="spin" data-lucide="loader-2"></i>';
+      btn.disabled = true; btn.innerHTML = '<i class="spin" data-lucide="loader-2" size="20"></i>';
       lucide.createIcons();
 
-      enterChat();
       addUserMsg(p);
-      ta.value = ''; resize(ta); updateTok();
+      ta.value = ''; resize(ta);
       addTyping();
+
+      // Smoothly hide hero if it's the first message
+      document.getElementById('heroCenter').style.display = 'none';
 
       try {
         const res = await fetch(`${API}/analyze`, {
@@ -216,10 +234,10 @@
       } catch (err) {
         rmTyping();
         const d = document.createElement('div'); d.className = 'message bot';
-        d.innerHTML = `<div class="glass-card" style="border-color:#ef4444">Error connecting to GreenPrompt backend.</div>`;
+        d.innerHTML = `<div class="bot-avatar">⚠️</div><div style="color:#ef4444">Error connecting to GreenPrompt backend.</div>`;
         push(d);
       } finally {
-        S.busy = false; btn.disabled = false; btn.innerHTML = '<i data-lucide="zap"></i>'; lucide.createIcons();
+        S.busy = false; btn.disabled = false; btn.innerHTML = '<i data-lucide="arrow-up" size="20"></i>'; lucide.createIcons();
       }
     }
 
@@ -251,13 +269,6 @@
     }
 
     function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-
-    /* ─── EXAMPLES ─────────────────────────────────────── */
-    ['exChip1', 'exChip2', 'exChip3'].forEach(id => {
-      document.getElementById(id).addEventListener('click', function () {
-        ta.value = this.textContent; resize(ta); updateTok(); go();
-      });
-    });
   </script>
 </body>
 

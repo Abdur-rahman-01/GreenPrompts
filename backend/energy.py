@@ -5,9 +5,9 @@ All outputs are clamped to non-negative values. Edge cases handled.
 
 # ─── MODEL PARAMETERS ────────────────────────────────────────────────────────
 MODEL_PARAMS = {
-    "SLM":  8,    # 8B params
-    "MID":  12,   # 12B effective params (Mixtral active)
-    "FULL": 40,   # Scaled up inference cost for heavy reasoning/Gemma
+    "SLM":  3,    # 3B params (Llama 3.2 3B)
+    "MID":  8,    # 8B params (Llama 3.1 8B)
+    "FULL": 70,   # 70B params (Llama 3.3 70B)
 }
 
 COMPLEXITY_MULTIPLIER = {
