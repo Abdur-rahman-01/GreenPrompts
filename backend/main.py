@@ -3,16 +3,17 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
+
+from dotenv import load_dotenv
+
+# Load .env FIRST so all os.getenv() calls below see the values
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from dotenv import load_dotenv
-
-# Ensure we load the .env from the backend directory
-load_dotenv()
 
 def _clean_data(data):
     """Deeply cleans surrogates from dicts, lists, and strings."""
@@ -35,9 +36,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# ALLOWED_ORIGINS defaults to "*" (open) — set it in Render env vars to restrict
+# e.g. chrome-extension://abcdefghijklmnopqrstuvwxyz,https://yourdomain.com
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+ALLOWED_ORIGINS: List[str] = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -79,6 +85,7 @@ async def health():
         "status":  "ok",
         "version": "1.0.0",
         "service": "GreenPrompt API",
+        "port":    int(os.getenv("PORT", 8000)),
         "keys": {
             "groq":             bool(os.getenv("GROQ_API_KEY")),
             "gemini":           bool(os.getenv("GEMINI_API_KEY")),

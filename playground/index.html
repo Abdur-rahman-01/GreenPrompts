@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GreenPrompt Playground — Sustainable AI</title>
-  <meta name="description" content="Route your prompts to the most energy-efficient AI model. Real-time CO₂, energy and cost comparison." />
+  <meta name="description"
+    content="Route your prompts to the most energy-efficient AI model. Real-time CO₂, energy and cost comparison." />
   <link rel="stylesheet" href="style.css" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -38,8 +40,9 @@
       <div id="heroCenter">
         <div class="hero-eyebrow">Data-Driven Sustainable AI</div>
         <h1 class="hero-title">Every prompt has a<br /><span>greener path.</span></h1>
-        <p class="hero-subtitle">Optimize your compute resources in real-time. Route complexity to the most energy-efficient model tiers.</p>
-        
+        <p class="hero-subtitle">Optimize your compute resources in real-time. Route complexity to the most
+          energy-efficient model tiers.</p>
+
         <div class="example-chips">
           <span class="ex-chip" id="exChip1">Explain quantum entanglement</span>
           <span class="ex-chip" id="exChip2">Write a fast sort in Python</span>
@@ -75,7 +78,7 @@
     const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:8000'
       : window.location.origin + '/api';
-    
+
     const TIER_MODEL = { SLM: 'Llama 3.1 8B', MID: 'Mistral Saba 24B', FULL: 'Qwen 3 32B' };
     const TIER_CLS = { SLM: 'slm', MID: 'mid', FULL: 'full' };
 
@@ -228,10 +231,11 @@
 
     /* ─── EXAMPLES ─────────────────────────────────────── */
     ['exChip1', 'exChip2', 'exChip3'].forEach(id => {
-      document.getElementById(id).addEventListener('click', function() {
+      document.getElementById(id).addEventListener('click', function () {
         ta.value = this.textContent; resize(ta); updateTok(); go();
       });
     });
   </script>
 </body>
+
 </html>
