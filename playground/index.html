@@ -27,6 +27,12 @@
     <section class="hero" id="heroCenter">
       <h1 class="hero-title">Every prompt has a<br />cleaner path.</h1>
       <p class="hero-subtitle">Fullstack. Production-ready. Your code.</p>
+      
+      <div class="example-chips">
+        <span class="ex-chip">Explain quantum entanglement</span>
+        <span class="ex-chip">Write a fast sort in Python</span>
+        <span class="ex-chip">Sustainable business strategy</span>
+      </div>
     </section>
 
     <!-- DASHBOARD CARD -->
@@ -269,6 +275,15 @@
     }
 
     function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    /* ─── EXAMPLES ─────────────────────────────────────── */
+    document.querySelectorAll('.ex-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        ta.value = this.textContent;
+        resize(ta);
+        go();
+      });
+    });
   </script>
 </body>
 
