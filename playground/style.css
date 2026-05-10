@@ -222,6 +222,34 @@ textarea {
   border-top: 1px solid var(--glass-border);
 }
 
+.input-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.7;
+  user-select: none;
+}
+
+.input-hint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+  box-shadow: 0 0 6px var(--primary-glow);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
 .send-button {
   background: var(--text);
   color: var(--bg-dark);
@@ -405,3 +433,173 @@ textarea {
   #chatArea { max-height: 400px; }
   .bento-card { padding: 2rem; }
 }
+
+/* ─── MODAL OVERLAY ─────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85); /* Dark slate overlay */
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: rgba(15, 23, 42, 0.85); /* slate-900 with opacity */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--r-xl);
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 3rem;
+  position: relative;
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(16, 185, 129, 0.1);
+}
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal Typography & Tables */
+.modal-body h2 {
+  font-family: 'Instrument Serif', serif;
+  color: #fff;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.modal-body h3 {
+  color: var(--primary);
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.modal-body p {
+  color: #cbd5e1;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.modal-body .md-ul, .modal-body .md-ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #cbd5e1;
+}
+
+.modal-body li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.modal-body strong {
+  color: #fff;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--glass-border);
+}
+
+.modal-body table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.modal-body th, .modal-body td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+.modal-body th {
+  background: rgba(255, 255, 255, 0.03);
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-body td {
+  font-size: 0.95rem;
+}
+
+.alert-box {
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  margin: 1.5rem 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+.alert-box.note, .alert-box.info {
+  background: rgba(34, 197, 94, 0.08);
+  border-left: 4px solid var(--primary);
+}
+.alert-box.important {
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 4px solid #ef4444;
+}
+
+.modal-body code {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85em;
+  color: #a5f3fc;
+}
+
+/* Modal Scrollbar */
+.modal-content::-webkit-scrollbar { width: 8px; }
+.modal-content::-webkit-scrollbar-track { background: transparent; }
+.modal-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+.modal-content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
