@@ -1,6 +1,8 @@
 import os
 import json
 import time
+import asyncio
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
@@ -29,11 +31,42 @@ from classifier import classify
 from energy import get_all_tier_estimates
 from router import route_prompt
 
+# ─── KEEPALIVE (prevents Render free tier cold starts) ────────────────────────
+async def _self_ping():
+    """Pings /health every 10 min so Render never spins down the container."""
+    import httpx
+    url = os.getenv("RENDER_EXTERNAL_URL")
+    if not url:
+        return  # Not on Render — skip
+    if not url.startswith("http"):
+        url = f"https://{url}"
+    ping_url = f"{url}/health"
+    await asyncio.sleep(30)  # Wait for server to fully start before first ping
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.get(ping_url)
+            print(f"💚 [GreenPrompt] Keepalive ping OK → {ping_url}")
+        except Exception as e:
+            print(f"⚠️ [GreenPrompt] Keepalive ping failed: {e}")
+        await asyncio.sleep(600)  # Ping every 10 minutes
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start the keepalive background task on startup
+    task = asyncio.create_task(_self_ping())
+    yield
+    # Cancel on shutdown
+    task.cancel()
+
+
 # ─── APP ─────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="GreenPrompt API",
     description="Sustainable AI routing with energy-tier classification",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # ALLOWED_ORIGINS defaults to "*" (open) — set it in Render env vars to restrict

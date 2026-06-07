@@ -28,16 +28,16 @@ def get_groq_client():
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 GROQ_MODEL_IDS = {
-    "SLM":  "llama-3.2-3b-preview",
-    "MID":  "llama-3.1-8b-instant",        
-    "FULL": "llama-3.3-70b-versatile",              
+    "SLM":  "llama-3.1-8b-instant",       # Was llama-3.2-3b-preview (deprecated/slow)
+    "MID":  "llama-3.1-8b-instant",
+    "FULL": "llama-3.3-70b-versatile",
 }
 
 # Fallback chain if primary model fails on Groq
 GROQ_FALLBACK = {
-    "SLM":  "llama-3.1-8b-instant",      
-    "MID":  "llama-3.3-70b-versatile",      
-    "FULL": "llama-3.3-70b-versatile",      
+    "SLM":  "gemma2-9b-it",               # Fast, reliable Groq model
+    "MID":  "llama-3.3-70b-versatile",
+    "FULL": "llama-3.3-70b-versatile",
 }
 
 
