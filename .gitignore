@@ -10,6 +10,7 @@ venv/
 env/
 
 # Node / build artifacts
+.next
 node_modules/
 dist/
 build/
