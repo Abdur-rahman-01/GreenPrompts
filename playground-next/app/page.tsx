@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Hero from '@/components/Hero'
 import Dashboard from '@/components/Dashboard'
 import BentoGrid from '@/components/BentoGrid'
@@ -113,10 +113,33 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const [initialPrompt, setInitialPrompt] = useState('')
+  const dashboardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    if (dashboardRef.current) {
+      observer.observe(dashboardRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   const handleSelectExample = (text: string) => {
     setInitialPrompt(text)
     setShowHero(false)
+    setTimeout(() => {
+      dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
   }
 
   const handleCardClick = (cardKey: string) => {
@@ -130,11 +153,13 @@ export default function Home() {
     <main id="app">
       {showHero && <Hero onSelectExample={handleSelectExample} />}
       
-      <Dashboard showHero={showHero} initialPrompt={initialPrompt} />
+      <div ref={dashboardRef} className="reveal visible">
+        <Dashboard showHero={showHero} initialPrompt={initialPrompt} />
+      </div>
 
       <BentoGrid onCardClick={handleCardClick} />
 
-      <div style={{ height: '100px' }}></div>
+      <div style={{ height: '80px' }}></div>
 
       <Modal 
         isOpen={modalOpen} 

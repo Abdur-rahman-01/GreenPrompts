@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { ArrowUp, Loader2 } from 'lucide-react'
 
 const RENDER_URL = 'https://greenprompts-bvdh.onrender.com'
@@ -32,6 +32,8 @@ interface Analysis {
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  analysisData?: Analysis
+  responseData?: any
 }
 
 interface DashboardProps {
@@ -44,14 +46,10 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [busy, setBusy] = useState(false)
   const [prompt, setPrompt] = useState('')
+  const [lastUserPrompt, setLastUserPrompt] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const chatAreaRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (initialPrompt) {
-      setPrompt(initialPrompt)
-    }
-  }, [initialPrompt])
+  const processedPromptRef = useRef<string>('')
 
   useEffect(() => {
     if (chatAreaRef.current) {
@@ -127,11 +125,12 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     return html
   }
 
-  const go = async () => {
-    const p = prompt.trim()
+  const go = useCallback(async (promptText: string) => {
+    const p = promptText.trim()
     if (!p || busy) return
 
     setBusy(true)
+    setLastUserPrompt(p)
     setMessages(prev => [...prev, { role: 'user', content: p }])
     setPrompt('')
     if (textareaRef.current) {
@@ -152,19 +151,19 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     } finally {
       setBusy(false)
     }
-  }
+  }, [busy, messages])
 
-  const runModel = async () => {
+  const runModel = useCallback(async () => {
     if (!analysis || busy) return
 
     setBusy(true)
-    setMessages(prev => [...prev, { role: 'assistant', content: 'Analyzing impact...' }])
+    setMessages(prev => [...prev, { role: 'assistant', content: 'typing' }])
 
     try {
       const res = await fetch(`${getApiUrl()}/route`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: messages[messages.length - 2]?.content, tier: analysis.tier, messages }),
+        body: JSON.stringify({ prompt: lastUserPrompt, tier: analysis.tier, messages }),
       })
 
       let data
@@ -186,7 +185,15 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     } finally {
       setBusy(false)
     }
-  }
+  }, [analysis, busy, lastUserPrompt, messages])
+
+  useEffect(() => {
+    if (initialPrompt && initialPrompt !== processedPromptRef.current && !busy) {
+      processedPromptRef.current = initialPrompt
+      setPrompt(initialPrompt)
+      setTimeout(() => go(initialPrompt), 100)
+    }
+  }, [initialPrompt, go, busy])
 
   const renderTierGrid = (d: Analysis) => {
     const { tier, estimates, recommended_model, suggested_models, reason } = d
@@ -197,11 +204,13 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
       const sc = `s-${e.green_score.toLowerCase()}`
       return (
         <div key={t} className={`tier-col ${best ? 'best' : ''} ${sc}-card`}>
-          <div className="font-code" style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.25rem' }}>{t}</div>
+          <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{t}</div>
           <div className={`t-score ${sc}`}>{e.green_score}</div>
-          <div className="t-metric">{e.energy_index.toLocaleString()}J</div>
-          <div className="t-metric">{e.co2_g.toFixed(3)}g CO2</div>
-          <div className="t-metric">{(e.water_ml || 0).toFixed(1)}ml H₂O</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            <div className="t-metric">{e.energy_index.toLocaleString()}J</div>
+            <div className="t-metric">{e.co2_g.toFixed(3)}g CO₂</div>
+            <div className="t-metric">{(e.water_ml || 0).toFixed(1)}ml H₂O</div>
+          </div>
         </div>
       )
     })
@@ -213,11 +222,13 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     return (
       <div className="analysis-bubble">
         <div className="tier-grid">{tierRows}</div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.25rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="analysis-box">
           {recommended_model && (
             <div className="rec-model">⚡ Recommended: <strong>{escapeHtml(recommended_model)}</strong></div>
           )}
-          <p style={{ fontSize: '0.9rem', margin: '0.75rem 0 1rem', lineHeight: 1.5, color: 'var(--text-muted)' }}>{escapeHtml(reason)}</p>
+          <p style={{ fontSize: '0.85rem', margin: '0.5rem 0 0.75rem', lineHeight: 1.5, color: 'var(--text-muted)' }}>
+            {escapeHtml(reason)}
+          </p>
           {altChips.length > 0 && (
             <div className="alt-models">
               <span className="alt-label">Also fits:</span>
@@ -225,11 +236,11 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
             </div>
           )}
           <button 
-            className="action-btn" 
+            className="deploy-btn" 
             onClick={runModel}
-            style={{ background: 'white', color: 'black', padding: '0.75rem 1.5rem', borderRadius: '0.75rem', width: '100%', justifyContent: 'center', fontWeight: 600, marginTop: '1rem', border: 'none', cursor: 'pointer', fontSize: '1rem' }}
+            disabled={busy}
           >
-            Deploy to {escapeHtml(recommended_model || TIER_MODEL[tier as keyof typeof TIER_MODEL])}
+            {busy ? 'Processing...' : `Deploy to ${escapeHtml(recommended_model || TIER_MODEL[tier as keyof typeof TIER_MODEL])}`}
           </button>
         </div>
       </div>
@@ -241,9 +252,9 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
 
     if (isError) {
       return (
-        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1rem', borderRadius: '1rem', width: '100%' }}>
-          <div style={{ fontWeight: 700, fontSize: '0.75rem', color: '#ef4444', marginBottom: '0.25rem' }}>ERROR DEPLOYING MODEL</div>
-          <div style={{ fontSize: '0.95rem', color: '#ef4444' }}>{escapeHtml(rd.message || rd.error || 'Unknown API error.')}</div>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.75rem', borderRadius: '1rem', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.7rem', color: '#ef4444', marginBottom: '0.25rem' }}>ERROR DEPLOYING MODEL</div>
+          <div style={{ fontSize: '0.85rem', color: '#ef4444' }}>{escapeHtml(rd.message || rd.error || 'Unknown API error.')}</div>
         </div>
       )
     }
@@ -264,7 +275,7 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     <section className="dashboard-wrapper">
       <div className="glass-dashboard">
         {messages.length > 0 && (
-          <div ref={chatAreaRef} style={{ maxHeight: '500px', overflowY: 'auto', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', borderBottom: '1px solid var(--glass-border)', scrollBehavior: 'smooth' }}>
+          <div ref={chatAreaRef} className="chat-area">
             {messages.map((msg, i) => {
               if (msg.role === 'user') {
                 return (
@@ -274,30 +285,34 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
                 )
               }
 
-              if (msg.content === 'analysis' && (msg as any).analysisData) {
+              if (msg.content === 'analysis' && msg.analysisData) {
                 return (
                   <div key={i} className="message bot">
                     <div className="bot-avatar">🌿</div>
-                    {renderTierGrid((msg as any).analysisData)}
+                    {renderTierGrid(msg.analysisData)}
                   </div>
                 )
               }
 
-              if (msg.content === 'response' && (msg as any).responseData) {
+              if (msg.content === 'response' && msg.responseData) {
                 return (
                   <div key={i} className="message bot">
                     <div className="bot-avatar">🤖</div>
-                    {renderResponse((msg as any).responseData)}
+                    {renderResponse(msg.responseData)}
                   </div>
                 )
               }
 
-              if (msg.content === 'Analyzing impact...') {
+              if (msg.content === 'typing') {
                 return (
                   <div key={i} className="message bot">
                     <div className="bot-avatar">🌿</div>
-                    <div className="glass-card" style={{ background: 'none', border: 'none', padding: '0.75rem', fontSize: '0.9rem', opacity: 0.7 }}>
-                      Analyzing impact...
+                    <div className="typing-indicator">
+                      <div className="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
                     </div>
                   </div>
                 )
@@ -306,7 +321,7 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
               return (
                 <div key={i} className="message bot">
                   <div className="bot-avatar">🌿</div>
-                  <div style={{ color: '#ef4444' }}>{msg.content}</div>
+                  <div style={{ color: '#ef4444', fontSize: '0.9rem' }}>{msg.content}</div>
                 </div>
               )
             })}
@@ -325,7 +340,7 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
               onKeyDown={(e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                   e.preventDefault()
-                  go()
+                  go(prompt)
                 }
               }}
               placeholder="Ask anything — GreenPrompt routes it to the greenest model..."
@@ -335,15 +350,15 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
           <div className="input-actions">
             <span className="input-hint">
               <span className="input-hint-dot"></span>
-              Optimizing · Routing best path
+              <span>Optimizing · Routing best path</span>
             </span>
             <button 
               className="send-button" 
-              onClick={go}
-              disabled={busy}
+              onClick={() => go(prompt)}
+              disabled={busy || !prompt.trim()}
               title="Analyze Prompt"
             >
-              {busy ? <Loader2 size={20} className="spin" /> : <ArrowUp size={20} />}
+              {busy ? <Loader2 size={18} className="spin" /> : <ArrowUp size={18} />}
             </button>
           </div>
         </div>
