@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import Hero from '@/components/Hero'
 import Dashboard from '@/components/Dashboard'
 import BentoGrid from '@/components/BentoGrid'
@@ -113,6 +114,7 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalContent, setModalContent] = useState('')
   const [initialPrompt, setInitialPrompt] = useState('')
+  const [dashboardKey, setDashboardKey] = useState(0)
   const dashboardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -137,9 +139,21 @@ export default function Home() {
   const handleSelectExample = (text: string) => {
     setInitialPrompt(text)
     setShowHero(false)
+    setDashboardKey(prev => prev + 1)
     setTimeout(() => {
       dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 100)
+  }
+
+  const handleBackToHome = () => {
+    setShowHero(true)
+    setInitialPrompt('')
+    setDashboardKey(prev => prev + 1)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handlePromptSubmitted = () => {
+    setShowHero(false)
   }
 
   const handleCardClick = (cardKey: string) => {
@@ -151,10 +165,22 @@ export default function Home() {
 
   return (
     <main id="app">
+      {!showHero && (
+        <button className="back-home-btn" onClick={handleBackToHome}>
+          <ArrowLeft size={18} />
+          <span>Home</span>
+        </button>
+      )}
+
       {showHero && <Hero onSelectExample={handleSelectExample} />}
       
       <div ref={dashboardRef} className="reveal visible">
-        <Dashboard showHero={showHero} initialPrompt={initialPrompt} />
+        <Dashboard 
+          key={dashboardKey}
+          showHero={showHero} 
+          initialPrompt={initialPrompt}
+          onPromptSubmitted={handlePromptSubmitted}
+        />
       </div>
 
       <BentoGrid onCardClick={handleCardClick} />

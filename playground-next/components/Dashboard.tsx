@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { ArrowUp, Loader2 } from 'lucide-react'
+import { ArrowUp, Loader2, X } from 'lucide-react'
 
 const RENDER_URL = 'https://greenprompts-bvdh.onrender.com'
 
@@ -39,9 +39,10 @@ interface Message {
 interface DashboardProps {
   showHero: boolean
   initialPrompt?: string
+  onPromptSubmitted?: () => void
 }
 
-export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
+export default function Dashboard({ showHero, initialPrompt, onPromptSubmitted }: DashboardProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [busy, setBusy] = useState(false)
@@ -50,6 +51,7 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const chatAreaRef = useRef<HTMLDivElement>(null)
   const processedPromptRef = useRef<string>('')
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (chatAreaRef.current) {
@@ -125,10 +127,26 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     return html
   }
 
+  const cancelRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+    setBusy(false)
+    setMessages(prev => {
+      const lastMsg = prev[prev.length - 1]
+      if (lastMsg?.content === 'typing') {
+        return prev.slice(0, -1)
+      }
+      return prev
+    })
+  }, [])
+
   const go = useCallback(async (promptText: string) => {
     const p = promptText.trim()
     if (!p || busy) return
 
+    onPromptSubmitted?.()
     setBusy(true)
     setLastUserPrompt(p)
     setMessages(prev => [...prev, { role: 'user', content: p }])
@@ -137,21 +155,30 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
       textareaRef.current.style.height = 'auto'
     }
 
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const res = await fetch(`${getApiUrl()}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: p, messages }),
+        signal: controller.signal,
       })
       const data = await res.json()
       setAnalysis(data)
       setMessages(prev => [...prev, { role: 'assistant', content: 'analysis', analysisData: data }])
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to GreenPrompt backend.' }])
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Request cancelled.' }])
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to GreenPrompt backend.' }])
+      }
     } finally {
+      abortControllerRef.current = null
       setBusy(false)
     }
-  }, [busy, messages])
+  }, [busy, messages, onPromptSubmitted])
 
   const runModel = useCallback(async () => {
     if (!analysis || busy) return
@@ -159,11 +186,15 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     setBusy(true)
     setMessages(prev => [...prev, { role: 'assistant', content: 'typing' }])
 
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const res = await fetch(`${getApiUrl()}/route`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: lastUserPrompt, tier: analysis.tier, messages }),
+        signal: controller.signal,
       })
 
       let data
@@ -177,15 +208,31 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
         const newMessages = prev.slice(0, -1)
         return [...newMessages, { role: 'assistant', content: 'response', responseData: data }]
       })
-    } catch (err) {
-      setMessages(prev => {
-        const newMessages = prev.slice(0, -1)
-        return [...newMessages, { role: 'assistant', content: 'response', responseData: { error: 'Network Error', message: 'Could not reach the routing backend.' } }]
-      })
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        setMessages(prev => {
+          const newMessages = prev.slice(0, -1)
+          return [...newMessages, { role: 'assistant', content: 'Request cancelled.' }]
+        })
+      } else {
+        setMessages(prev => {
+          const newMessages = prev.slice(0, -1)
+          return [...newMessages, { role: 'assistant', content: 'response', responseData: { error: 'Network Error', message: 'Could not reach the routing backend.' } }]
+        })
+      }
     } finally {
+      abortControllerRef.current = null
       setBusy(false)
     }
   }, [analysis, busy, lastUserPrompt, messages])
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (initialPrompt && initialPrompt !== processedPromptRef.current && !busy) {
@@ -271,11 +318,14 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
     )
   }
 
+  const hasMessages = messages.length > 0
+  const isSingleMessage = messages.length === 1
+
   return (
-    <section className="dashboard-wrapper">
+    <section className={`dashboard-wrapper ${hasMessages ? 'has-messages' : ''}`}>
       <div className="glass-dashboard">
-        {messages.length > 0 && (
-          <div ref={chatAreaRef} className="chat-area">
+        {hasMessages && (
+          <div ref={chatAreaRef} className={`chat-area ${isSingleMessage ? 'single-message' : ''}`}>
             {messages.map((msg, i) => {
               if (msg.role === 'user') {
                 return (
@@ -313,6 +363,10 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
                         <span></span>
                         <span></span>
                       </div>
+                      <button className="cancel-btn" onClick={cancelRequest} title="Cancel">
+                        <X size={14} />
+                        <span>Cancel</span>
+                      </button>
                     </div>
                   </div>
                 )
@@ -338,28 +392,39 @@ export default function Dashboard({ showHero, initialPrompt }: DashboardProps) {
                 resizeTextarea()
               }}
               onKeyDown={(e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
                   go(prompt)
                 }
               }}
-              placeholder="Ask anything — GreenPrompt routes it to the greenest model..."
+              placeholder={busy ? "Processing... please wait..." : "Ask anything — GreenPrompt routes it to the greenest model..."}
               rows={1}
+              disabled={busy}
             />
           </div>
           <div className="input-actions">
             <span className="input-hint">
               <span className="input-hint-dot"></span>
-              <span>Optimizing · Routing best path</span>
+              <span>{busy ? 'Processing request...' : 'Optimizing · Routing best path'}</span>
             </span>
-            <button 
-              className="send-button" 
-              onClick={() => go(prompt)}
-              disabled={busy || !prompt.trim()}
-              title="Analyze Prompt"
-            >
-              {busy ? <Loader2 size={18} className="spin" /> : <ArrowUp size={18} />}
-            </button>
+            {busy ? (
+              <button 
+                className="cancel-send-btn" 
+                onClick={cancelRequest}
+                title="Cancel request"
+              >
+                <X size={18} />
+              </button>
+            ) : (
+              <button 
+                className="send-button" 
+                onClick={() => go(prompt)}
+                disabled={!prompt.trim()}
+                title="Analyze Prompt"
+              >
+                <ArrowUp size={18} />
+              </button>
+            )}
           </div>
         </div>
       </div>
